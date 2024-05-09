@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Image Resize Helper",
+  "name": "Bad Image",
   "version": "1.0",
   "description": "Identifies and suggests resizing for images larger than their displayed size to improve page speed.",
   "permissions": [

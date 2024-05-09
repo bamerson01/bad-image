@@ -9,9 +9,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'toggle') {
     extensionEnabled = message.status;
     updateImageHighlighting(extensionEnabled);
+    sendResponse({ status: 'Updated highlighting based on toggle' });
   } else if (message.type === 'getImagesData') {
     sendResponse(collectImageData());
+    return true;
   }
+  return false;
 });
 
 function updateImageHighlighting(enable) {
@@ -20,7 +23,7 @@ function updateImageHighlighting(enable) {
   } else {
     document.querySelectorAll('img').forEach(img => {
       if (img.naturalWidth > img.width || img.naturalHeight > img.height) {
-        img.style.border = '2px solid magenta';
+        img.style.border = '4px solid magenta';
       }
     });
   }

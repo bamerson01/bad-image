@@ -11,20 +11,29 @@ document.addEventListener('DOMContentLoaded', () => {
   toggleButton.addEventListener('click', () => {
     chrome.storage.local.get('extensionEnabled', data => {
       const newStatus = !data.extensionEnabled;
-      chrome.storage.local.set({ extensionEnabled: newStatus });
-      toggleButton.textContent = newStatus ? 'Disable' : 'Enable';
-      chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-        chrome.tabs.sendMessage(tabs[0].id, { type: 'toggle', status: newStatus });
+      chrome.storage.local.set({ extensionEnabled: newStatus }, () => {
+        toggleButton.textContent = newStatus ? 'Disable' : 'Enable';
+        chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+          chrome.tabs.sendMessage(tabs[0].id, { type: 'toggle', status: newStatus });
+        });
       });
     });
   });
 
-  // Request and display image data
+  // Request and display image data only once
   chrome.runtime.sendMessage({ action: "getImagesInfo" }, response => {
-    (response.imagesInfo || []).forEach(info => {
-      const item = document.createElement('div');
-      item.textContent = `Image: ${info.src}, Natural: ${info.naturalWidth}x${info.naturalHeight}, Display: ${info.displayedWidth}x${info.displayedHeight}`;
-      imageListDiv.appendChild(item);
-    });
+    if (chrome.runtime.lastError) {
+      console.error('Error fetching images:', chrome.runtime.lastError.message);
+      return;
+    }
+    if (response && response.imagesInfo) {
+      response.imagesInfo.forEach(info => {
+        const item = document.createElement('div');
+        item.textContent = `Image: ${info.src}, Natural: ${info.naturalWidth}x${info.naturalHeight}, Display: ${info.displayedWidth}x${info.displayedHeight}`;
+        imageListDiv.appendChild(item);
+      });
+    } else {
+      console.log("No image information received.");
+    }
   });
 });
